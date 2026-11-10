@@ -88,24 +88,76 @@
     GROUP BY SNUM;
 
 21.	Which day had the hightest total amount ordered.
+	
+	SELECT TOP 1
+    ODATE,
+    SUM(AMT) AS Total_Amount
+	FROM ORDERS
+	GROUP BY ODATE
+	ORDER BY SUM(AMT) DESC;
 
 22.	Count all orders for Oct 3rd.
+	
+	SELECT COUNT(*) AS Total_Orders
+	FROM ORDERS
+	WHERE ODATE = '1994-10-03';
 
 23.	Count the number of different non NULL city values in customers table.
 
+	SELECT COUNT(DISTINCT CITY) AS Total_Cities
+	FROM CUST;
+
 24.	Select each customer’s smallest order.
+
+	SELECT
+    CNUM,
+    MIN(AMT) AS Smallest_Order
+	FROM ORDERS
+	GROUP BY CNUM;
 
 25.	First customer in alphabetical order whose name begins with G.
 
+	SELECT TOP 1 CNUM, CNAME, CITY, RATING, SNUM
+	FROM CUST
+	WHERE CNAME LIKE 'G%'
+	ORDER BY CNAME ASC;
+
 26.	Get the output like “ For dd/mm/yy there are ___ orders.
+
+	SELECT
+    'For ' + FORMAT(ODATE, 'dd/MM/yy')
+    + ' there are ' +
+    CAST(COUNT(*) AS VARCHAR(10))
+    + ' orders.' AS Order_Summary
+	FROM ORDERS
+	GROUP BY ODATE
+	ORDER BY ODATE;
 
 27.	Assume that each salesperson has a 12% commission. Produce order no., salesperson no., and amount of salesperson’s commission for that order.
 
+	SELECT ONUM, SNUM, AMT, AMT * 0.12 AS Commission_Amount
+	FROM ORDERS;
+
 28.	Find highest rating in each city. Put the output in this form. For the city (city), the highest rating is : (rating).
+
+	SELECT 'For the city ' + CITY + ', the highest rating is: ' + CAST(MAX(RATING) AS VARCHAR(10)) AS Rating_Summary
+	FROM CUST
+	WHERE CITY IS NOT NULL
+	GROUP BY CITY;
 
 29.	Display the totals of orders for each day and place the results in descending order.
 
+	SELECT ODATE, SUM(AMT) AS Total_Amount
+	FROM ORDERS
+	GROUP BY ODATE
+	ORDER BY Total_Amount DESC;
+
 30.	All combinations of salespeople and customers who shared a city. (ie same city).
+
+	SELECT  S.SNUM,  S.SNAME,  S.CITY,  C.CNUM,  C.CNAME
+	FROM SALESPEOPLE S
+	INNER JOIN CUST C
+    ON S.CITY = C.CITY;
 
 31.	Name of all customers matched with the salespeople serving them.
 
