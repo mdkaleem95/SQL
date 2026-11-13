@@ -228,65 +228,265 @@
 
 36.	Find all pairs of customers having the same rating.
 
+	SELECT C1.CNAME AS Customer_1, C2.CNAME AS Customer_2, C1.RATING
+	FROM CUST C1
+	INNER JOIN CUST C2
+    ON C1.RATING = C2.RATING
+	WHERE C1.CNUM <> C2.CNUM;
+
 37.	Find all pairs of customers having the same rating, each pair coming once only.
+
+	SELECT C1.CNAME AS Customer_1, C2.CNAME AS Customer_2, C1.RATING
+	FROM CUST C1
+	INNER JOIN CUST C2
+    ON C1.RATING = C2.RATING
+	WHERE C1.CNUM < C2.CNUM;
 
 38.	Policy is to assign three salesperson to each customers. Display all such combinations.
 
+	SELECT C.CNAME AS Customer_Name, S.SNAME AS Salesperson_Name
+	FROM CUST C
+	CROSS JOIN SALESPEOPLE S;
+
 39.	Display all customers located in cities where salesman serres has customer.
 
+	SELECT *
+	FROM CUST
+	WHERE CITY IN (
+    SELECT DISTINCT C.CITY
+    FROM CUST C
+    INNER JOIN SALESPEOPLE S
+        ON C.SNUM = S.SNUM
+    WHERE S.SNAME = 'Serres');
+
 40.	Find all pairs of customers served by single salesperson.
+
+	SELECT C1.CNAME AS Customer_1, C2.CNAME AS Customer_2, C1.SNUM AS Salesperson_Number
+	FROM CUST C1
+	INNER JOIN CUST C2
+    ON C1.SNUM = C2.SNUM
+	WHERE C1.CNUM < C2.CNUM;
 	
 41.	Produce all pairs of salespeople which are living in the same city. Exclude combinations of salespeople with themselves as well as duplicates with the order reversed.
 
+	SELECT S1.SNAME AS Salesperson_1, S2.SNAME AS Salesperson_2, S1.CITY
+	FROM SALESPEOPLE S1
+	INNER JOIN SALESPEOPLE S2
+    ON S1.CITY = S2.CITY
+	WHERE S1.SNUM < S2.SNUM;
+	
 42.	Produce all pairs of orders by given customer, names that customers and eliminates duplicates.
+
+	SELECT C.CNAME AS Customer_Name, O1.ONUM AS Order_1, O2.ONUM AS Order_2
+	FROM ORDERS O1
+	INNER JOIN ORDERS O2
+    ON O1.CNUM = O2.CNUM
+	INNER JOIN CUST C
+    ON O1.CNUM = C.CNUM
+	WHERE O1.ONUM < O2.ONUM;
 
 43.	Produce names and cities of all customers with the same rating as Hoffman.
 
+	SELECT CNAME, CITY, RATING
+	FROM CUST
+	WHERE RATING = (
+    SELECT RATING
+    FROM CUST
+    WHERE CNAME = 'Hoffman');
+
 44.	Extract all the orders of Motika.
+
+	SELECT O.*
+	FROM ORDERS O
+	INNER JOIN SALESPEOPLE S
+    ON O.SNUM = S.SNUM
+	WHERE S.SNAME = 'Motika';
 
 45.	All orders credited to the same salesperson who services Hoffman.
 
+	SELECT *
+	FROM ORDERS
+	WHERE SNUM = (
+    SELECT SNUM
+    FROM CUST
+    WHERE CNAME = 'Hoffman');
+
 46.	All orders that are greater than the average for Oct 4.
+
+	SELECT *
+	FROM ORDERS
+	WHERE AMT > (
+    SELECT AVG(AMT)
+    FROM ORDERS
+    WHERE ODATE = '1994-10-04');
 
 47.	Find average commission of salespeople in london.
 
+	SELECT AVG(COMM) AS Average_Commission
+	FROM SALESPEOPLE
+	WHERE CITY = 'London';
 
 48.	Find all orders attributed to salespeople servicing customers in london.
 
+	SELECT *
+	FROM ORDERS
+	WHERE SNUM IN (
+    SELECT DISTINCT SNUM
+    FROM CUST
+    WHERE CITY = 'London');
+
 49.	Extract commissions of all salespeople servicing customers in London.
+
+	SELECT S.SNUM, S.SNAME, S.COMM
+	FROM SALESPEOPLE S
+	WHERE S.SNUM IN (
+    SELECT DISTINCT SNUM
+    FROM CUST
+    WHERE CITY = 'London');
 
 50.	Find all customers whose cnum is 1000 above the snum of serres.
 
+	SELECT *
+	FROM CUST
+	WHERE CNUM = (
+    SELECT SNUM + 1000
+    FROM SALESPEOPLE
+    WHERE SNAME = 'Serres');
+
 51.	Count the customers with rating  above San Jose’s average.
+
+	SELECT COUNT(*) AS Total_Customers
+	FROM CUST
+	WHERE RATING > (
+    SELECT AVG(RATING)
+    FROM CUST
+    WHERE CITY = 'San Jose');
 
 52.	Obtain all orders for the customer named Cisnerous. (Assume you don’t know his customer no. (cnum)).
 
+	SELECT *
+	FROM ORDERS
+	WHERE CNUM = (
+    SELECT CNUM
+    FROM CUST
+    WHERE CNAME = 'Cisnerous');
+
 53.	Produce the names and rating of all customers who have above average orders.
+
+	SELECT CNAME, RATING
+	FROM CUST
+	WHERE CNUM IN (
+    SELECT CNUM
+    FROM ORDERS
+    WHERE AMT > (
+        SELECT AVG(AMT)
+        FROM ORDERS ));
 
 54.	Find total amount in orders for each salesperson for whom this total is greater than the amount of the largest order in the table.
 
+	SELECT SNUM, SUM(AMT) AS Total_Amount
+	FROM ORDERS
+	GROUP BY SNUM
+	HAVING SUM(AMT) > (
+    SELECT MAX(AMT)
+    FROM ORDERS);
+
 55.	Find all customers with order on 3rd Oct.
+
+	SELECT DISTINCT C.CNUM, C.CNAME
+	FROM CUST C
+	INNER JOIN ORDERS O
+    ON C.CNUM = O.CNUM
+	WHERE O.ODATE = '1994-10-03';
 
 56.	Find names and numbers of all salesperson who have more than one customer.
 
+	SELECT S.SNUM, S.SNAME
+	FROM SALESPEOPLE S
+	INNER JOIN CUST C
+    ON S.SNUM = C.SNUM
+	GROUP BY S.SNUM, S.SNAME
+	HAVING COUNT(C.CNUM) > 1;
+
 57.	Check if the correct salesperson was credited with each sale.
+
+	SELECT O.ONUM, C.CNAME, O.SNUM AS Order_Salesperson, C.SNUM AS Assigned_Salesperson,
+    CASE
+        WHEN O.SNUM = C.SNUM THEN 'Correct'
+        ELSE 'Incorrect'
+    END AS Salesperson_Status
+	FROM ORDERS O
+	INNER JOIN CUST C
+    ON O.CNUM = C.CNUM;
 
 58.	Find all orders with above average amounts for their customers.
 
+	SELECT *
+	FROM ORDERS O
+	WHERE AMT > (
+    SELECT AVG(AMT)
+    FROM ORDERS
+    WHERE CNUM = O.CNUM);
+
 59.	Find the sums of the amounts from order table grouped by date, eliminating all those dates where the sum was not at least 2000 above the maximum amount.
+
+	SELECT ODATE, SUM(AMT) AS Total_Amount
+	FROM ORDERS
+	GROUP BY ODATE
+	HAVING SUM(AMT) >= (
+    SELECT MAX(AMT) + 2000
+    FROM ORDERS);
 
 60.	Find names and numbers of all customers with ratings equal to the maximum for their city.
 
+	SELECT C1.CNUM, C1.CNAME, C1.CITY, C1.RATING
+	FROM CUST C1
+	WHERE C1.RATING = (
+    SELECT MAX(C2.RATING)
+    FROM CUST C2
+    WHERE C2.CITY = C1.CITY);
+
 61.	Find all salespeople who have customers in their cities who they don’t service. ( Both way using Join and Correlated subquery.)
+
+	SELECT S.SNAME AS Salesperson_Name,  S.CITY, C.CNAME AS Customer_Name, C.SNUM AS Assigned_Salesperson
+	FROM SALESPEOPLE S
+	INNER JOIN CUST C
+    ON S.CITY = C.CITY
+	WHERE S.SNUM <> C.SNUM;
 
 62.	Extract cnum,cname and city from customer table if and only if one or more of the customers in the table are located in San Jose.
 
+	SELECT CNUM, CNAME, CITY
+	FROM CUST
+	WHERE EXISTS (
+    SELECT 1
+    FROM CUST
+    WHERE CITY = 'San Jose');
+
 63.	Find salespeople no. who have multiple customers.
+
+	SELECT SNUM
+	FROM CUST
+	GROUP BY SNUM
+	HAVING COUNT(CNUM) > 1;
 
 64.	Find salespeople number, name and city who have multiple customers.
 
+	SELECT S.SNUM, S.SNAME, S.CITY
+	FROM SALESPEOPLE S
+	INNER JOIN CUST C
+    ON S.SNUM = C.SNUM
+	GROUP BY S.SNUM, S.SNAME, S.CITY
+	HAVING COUNT(C.CNUM) > 1;
+
 65.	Find salespeople who serve only one customer.
 
+	SELECT S.SNUM, S.SNAME, S.CITY
+	FROM SALESPEOPLE S
+	INNER JOIN CUST C
+    ON S.SNUM = C.SNUM
+	GROUP BY S.SNUM, S.SNAME, S.CITY
+	HAVING COUNT(C.CNUM) = 1;
 
 66.	Extract rows of all salespeople with more than one current order.
 
