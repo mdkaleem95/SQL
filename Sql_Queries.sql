@@ -2,59 +2,84 @@
 
 1.	Display snum,sname,city and comm of all salespeople.
 
-    SELECT snum, sname, city, comm from salespeople
+    SELECT snum, sname, city, comm 
+	from salespeople;
 
 2.	Display all snum without duplicates from all orders.
 
-    SELECT Distinct(snum)from orders.
+    SELECT Distinct(snum)
+	from orders;
 
 3.	Display names and commissions of all salespeople in london.
 
-    SELECT name, Commission from salespeople where city = "london"
+    SELECT name, Commission 
+	from salespeople 
+	where city = "london";
 
 4.	All customers with rating of 100.
 
-    SELECT * from cust where rating = 100
+    SELECT * 
+	from cust 
+	where rating = 100;
 
 5.	Produce orderno, amount and date form all rows in the order table.
 
-    SELECT orderno, amount, date from orders
+    SELECT orderno, amount, date 
+	from orders;
 
 6.	All customers in San Jose, who have rating more than 200.
 
-    SELECT *  from customers where city = "San Jose" and rating = 200
+    SELECT *  
+	from customers 
+	where city = "San Jose" and rating = 200;
 
 7.	All customers who were either located in San Jose or had a rating above 200.
 
-    SELECT *  from customers where city = "San Jose" or rating = 200
+    SELECT *  
+	from customers 
+	here city = "San Jose" or rating = 200;
 
 8.	All orders for more than $1000.
 
-    SELECT * from orders where amt > 1000;
+    SELECT * 
+	from orders 
+	where amt > 1000;
 
 9.	Names and citires of all salespeople in london with commission above 0.10.
 
-    SELECT name, city from salespeople where city = "london" and commission > 0.10;
+    SELECT name, city 
+	from salespeople 
+	where city = "london" and commission > 0.10;
 
 10.	All customers excluding those with rating <= 100 unless they are located in Rome.
 
-    SELECT * from customers where rating > 100 or located = "Rome"
+    SELECT * 
+	from customers 
+	where rating > 100 or located = "Rome";
 
 11.	All salespeople either in Barcelona or in london.
 
-    SELECT * from salespeople where city in ("Barcelona", "london")
+    SELECT * 
+	from salespeople 
+	where city in ("Barcelona", "london");
 
 12.	All salespeople with commission between 0.10 and 0.12. (Boundary values should be excluded)
 
-    SELECT * from salespeople where commision > 0.10 and commision <0.12;
+    SELECT * 
+	from salespeople 
+	where commision > 0.10 and commision <0.12;
 
 13.	All customers with NULL values in city column.
 
-    SELECT * from customers where city is Null;
+    SELECT * 
+	from customers 
+	where city is Null;
 
 14.	All orders taken on Oct 3Rd   and Oct 4th  1994.
 
-    SELECT * from orders where date = '1994-10-03' and date = '1994-10-05';
+    SELECT * 
+	from orders 
+	where date = '1994-10-03' and date = '1994-10-05';
 
 15.	All customers serviced by peel or Motika.
 
@@ -66,19 +91,26 @@
 
 16.	All customers whose names begin with a letter from A to B.
 
-    SELECT * from customer where cname like '[A-B]%'
+    SELECT * 
+	from customer 
+	where cname like '[A-B]%';
 
 17.	All orders except those with 0 or NULL value in amt field.
 
-    SELECT * from orders where amt <> 0 And amt Is not Null;
+    SELECT * 
+	from orders 
+	where amt <> 0 And amt Is not Null;
 
 18.	Count the number of salespeople currently listing orders in the order table.
 
-    SELECT count(distinct snum) As total_salespeople from orders;
+    SELECT count(distinct snum) As total_salespeople 
+	from orders;
 
 19.	Largest order taken by each salesperson, datewise.
 
-    SELECT snum, max(sname) as largest_order, date from orders order by date asc
+    SELECT snum, max(sname) as largest_order, date 
+	from orders 
+	order by date asc;
 
 20.	Largest order taken by each salesperson with order value more than $3000.
 
@@ -109,9 +141,7 @@
 
 24.	Select each customer’s smallest order.
 
-	SELECT
-    CNUM,
-    MIN(AMT) AS Smallest_Order
+	SELECT CNUM, MIN(AMT) AS Smallest_Order
 	FROM ORDERS
 	GROUP BY CNUM;
 
@@ -124,11 +154,7 @@
 
 26.	Get the output like “ For dd/mm/yy there are ___ orders.
 
-	SELECT
-    'For ' + FORMAT(ODATE, 'dd/MM/yy')
-    + ' there are ' +
-    CAST(COUNT(*) AS VARCHAR(10))
-    + ' orders.' AS Order_Summary
+	SELECT 'For ' + FORMAT(ODATE, 'dd/MM/yy') + ' there are ' + CAST(COUNT(*) AS VARCHAR(10)) + ' orders.' AS Order_Summary
 	FROM ORDERS
 	GROUP BY ODATE
 	ORDER BY ODATE;
@@ -161,13 +187,44 @@
 
 31.	Name of all customers matched with the salespeople serving them.
 
+	SELECT C.CNAME AS Customer_Name, S.SNAME AS Salesperson_Name
+	FROM CUST C
+	INNER JOIN SALESPEOPLE S
+    ON C.SNUM = S.SNUM;
+
 32.	List each order number followed by the name of the customer who made the order.
+
+	SELECT O.ONUM, C.CNAME
+	FROM ORDERS O
+	INNER JOIN CUST C
+    ON O.CNUM = C.CNUM;
 
 33.	Names of salesperson and customer for each order after the order number.
 
+	SELECT O.ONUM, S.SNAME AS Salesperson_Name,C.CNAME AS Customer_Name
+	FROM ORDERS O
+	INNER JOIN SALESPEOPLE S
+    ON O.SNUM = S.SNUM
+	INNER JOIN CUST C
+    ON O.CNUM = C.CNUM;
+
 34.	Produce all customer serviced by salespeople with a commission above 12%.
 
+	SELECT C.CNUM, C.CNAME, C.CITY, S.SNAME, S.COMM
+	FROM CUST C
+	INNER JOIN SALESPEOPLE S
+    ON C.SNUM = S.SNUM
+	WHERE S.COMM > 0.12;
+
 35.	Calculate the amount of the salesperson’s commission on each order with a rating above 100.
+
+	SELECT O.ONUM, C.CNAME, C.RATING, O.AMT, S.SNAME, O.AMT * S.COMM AS Commission_Amount
+	FROM ORDERS O
+	INNER JOIN CUST C
+    ON O.CNUM = C.CNUM
+	INNER JOIN SALESPEOPLE S
+    ON O.SNUM = S.SNUM
+	WHERE C.RATING > 100;
 
 36.	Find all pairs of customers having the same rating.
 
